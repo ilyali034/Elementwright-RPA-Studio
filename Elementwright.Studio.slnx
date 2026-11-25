@@ -1,0 +1,5 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Elementwright.Studio/Elementwright.Studio.csproj" />
+  </Folder>
+</Solution>
