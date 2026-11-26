@@ -487,7 +487,18 @@
                                 <Button Content="Invoke element"
                                         Command="{Binding InvokeSelectedElementCommand}"
                                         Style="{StaticResource PrimaryButton}"
-                                        HorizontalAlignment="Stretch" />
+                                        HorizontalAlignment="Stretch" Margin="0,0,0,8" />
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="8" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <Button Content="Toggle"
+                                            Command="{Binding ToggleSelectedElementCommand}" />
+                                    <Button Grid.Column="2" Content="Select"
+                                            Command="{Binding SelectSelectedElementCommand}" />
+                                </Grid>
                             </StackPanel>
                         </ScrollViewer>
                     </Border>
