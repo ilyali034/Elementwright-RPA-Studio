@@ -1,5 +1,6 @@
 using System.Collections.ObjectModel;
 using System.Windows;
+using System.Windows.Automation;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Elementwright.Core.Automation;
@@ -244,12 +245,30 @@ public partial class MainViewModel : ObservableObject
         try
         {
             IsLoading = true;
-            var selector = ElementSelector.FromNode(SelectedElement);
-            var found = await _elementFinder.FindFirstAsync(ConnectedApplication.MainWindowHandle, selector);
-            SelectorTestResult = found is null
-                ? "NOT FOUND · No matching element was found."
-                : "FOUND · The selector resolves to an element.";
-            StatusMessage = found is null ? "Selector validation failed" : "Selector validation passed";
+            var selected = SelectedElement;
+            var selector = ElementSelector.FromNode(selected);
+            var match = await _elementFinder.ResolveAsync(ConnectedApplication.MainWindowHandle, selector);
+
+            if (match is null)
+            {
+                SelectorTestResult = "NOT FOUND · No matching element was found.";
+                StatusMessage = "Selector validation failed";
+            }
+            else if (string.Equals(match.Path, selected.Path, StringComparison.Ordinal))
+            {
+                SelectorTestResult = "FOUND · The selector resolves to the selected element.";
+                StatusMessage = "Selector validation passed";
+            }
+            else
+            {
+                SelectorTestResult = "FOUND · The selector resolves to a different element. The UI may have changed; refresh the tree.";
+                StatusMessage = "Selector validation: different element";
+            }
+        }
+        catch (AmbiguousSelectorException ex)
+        {
+            SelectorTestResult = $"AMBIGUOUS · {ex.Message}";
+            StatusMessage = "Selector validation failed";
         }
         catch (Exception ex)
         {
@@ -275,10 +294,7 @@ public partial class MainViewModel : ObservableObject
         try
         {
             IsLoading = true;
-            var element = await _elementFinder.FindFirstAsync(
-                ConnectedApplication.MainWindowHandle, ElementSelector.FromNode(SelectedElement));
-            if (element is null)
-                throw new InvalidOperationException("The element could not be found again. Refresh the tree.");
+            var element = await ResolveSelectedElementAsync();
             await Task.Run(() => _elementActions.Invoke(element));
             StatusMessage = "Invoke action completed";
         }
@@ -305,10 +321,7 @@ public partial class MainViewModel : ObservableObject
         try
         {
             IsLoading = true;
-            var element = await _elementFinder.FindFirstAsync(
-                ConnectedApplication.MainWindowHandle, ElementSelector.FromNode(SelectedElement));
-            if (element is null)
-                throw new InvalidOperationException("The element could not be found again. Refresh the tree.");
+            var element = await ResolveSelectedElementAsync();
             await Task.Run(() => _elementActions.SetValue(element, ValueInput));
             StatusMessage = "Value updated";
         }
@@ -334,10 +347,7 @@ public partial class MainViewModel : ObservableObject
         try
         {
             IsLoading = true;
-            var element = await _elementFinder.FindFirstAsync(
-                ConnectedApplication.MainWindowHandle, ElementSelector.FromNode(SelectedElement));
-            if (element is null)
-                throw new InvalidOperationException("The element could not be found again. Refresh the tree.");
+            var element = await ResolveSelectedElementAsync();
             await Task.Run(() => _elementActions.Toggle(element));
             StatusMessage = "Toggle action completed";
         }
@@ -357,15 +367,26 @@ public partial class MainViewModel : ObservableObject
         try
         {
             IsLoading = true;
-            var element = await _elementFinder.FindFirstAsync(
-                ConnectedApplication.MainWindowHandle, ElementSelector.FromNode(SelectedElement));
-            if (element is null)
-                throw new InvalidOperationException("The element could not be found again. Refresh the tree.");
+            var element = await ResolveSelectedElementAsync();
             await Task.Run(() => _elementActions.Select(element));
             StatusMessage = "Select action completed";
         }
         catch (Exception ex) { StatusMessage = $"Select failed: {ex.Message}"; }
         finally { IsLoading = false; }
+    }
+
+    private async Task<AutomationElement> ResolveSelectedElementAsync()
+    {
+        var selected = SelectedElement
+            ?? throw new InvalidOperationException("No element is selected.");
+        var application = ConnectedApplication
+            ?? throw new InvalidOperationException("No application is connected.");
+
+        var match = await _elementFinder.ResolveAsync(
+            application.MainWindowHandle, ElementSelector.FromNode(selected));
+
+        return match?.Element
+            ?? throw new InvalidOperationException("The element could not be found again. Refresh the tree.");
     }
 
     partial void OnIsLoadingChanged(bool value)
