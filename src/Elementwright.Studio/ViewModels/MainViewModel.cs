@@ -48,6 +48,8 @@ public partial class MainViewModel : ObservableObject
     [NotifyCanExecuteChangedFor(nameof(TestSelectorCommand))]
     [NotifyCanExecuteChangedFor(nameof(InvokeSelectedElementCommand))]
     [NotifyCanExecuteChangedFor(nameof(SetSelectedElementValueCommand))]
+    [NotifyCanExecuteChangedFor(nameof(ToggleSelectedElementCommand))]
+    [NotifyCanExecuteChangedFor(nameof(SelectSelectedElementCommand))]
     private ElementNode? selectedElement;
 
     [ObservableProperty]
@@ -287,12 +289,60 @@ public partial class MainViewModel : ObservableObject
         }
     }
 
+    private bool CanToggleSelectedElement() =>
+        SelectedElement is { IsEnabled: true, HasTogglePattern: true } &&
+        ConnectedApplication is not null && !IsLoading;
+
+    [RelayCommand(CanExecute = nameof(CanToggleSelectedElement))]
+    private async Task ToggleSelectedElementAsync()
+    {
+        if (SelectedElement is null || ConnectedApplication is null || IsLoading)
+            return;
+        try
+        {
+            IsLoading = true;
+            var element = await _elementFinder.FindFirstAsync(
+                ConnectedApplication.MainWindowHandle, ElementSelector.FromNode(SelectedElement));
+            if (element is null)
+                throw new InvalidOperationException("The element could not be found again. Refresh the tree.");
+            await Task.Run(() => _elementActions.Toggle(element));
+            StatusMessage = "Toggle action completed";
+        }
+        catch (Exception ex) { StatusMessage = $"Toggle failed: {ex.Message}"; }
+        finally { IsLoading = false; }
+    }
+
+    private bool CanSelectSelectedElement() =>
+        SelectedElement is { IsEnabled: true, HasSelectionItemPattern: true } &&
+        ConnectedApplication is not null && !IsLoading;
+
+    [RelayCommand(CanExecute = nameof(CanSelectSelectedElement))]
+    private async Task SelectSelectedElementAsync()
+    {
+        if (SelectedElement is null || ConnectedApplication is null || IsLoading)
+            return;
+        try
+        {
+            IsLoading = true;
+            var element = await _elementFinder.FindFirstAsync(
+                ConnectedApplication.MainWindowHandle, ElementSelector.FromNode(SelectedElement));
+            if (element is null)
+                throw new InvalidOperationException("The element could not be found again. Refresh the tree.");
+            await Task.Run(() => _elementActions.Select(element));
+            StatusMessage = "Select action completed";
+        }
+        catch (Exception ex) { StatusMessage = $"Select failed: {ex.Message}"; }
+        finally { IsLoading = false; }
+    }
+
     partial void OnIsLoadingChanged(bool value)
     {
         ConnectToApplicationCommand.NotifyCanExecuteChanged();
         TestSelectorCommand.NotifyCanExecuteChanged();
         InvokeSelectedElementCommand.NotifyCanExecuteChanged();
         SetSelectedElementValueCommand.NotifyCanExecuteChanged();
+        ToggleSelectedElementCommand.NotifyCanExecuteChanged();
+        SelectSelectedElementCommand.NotifyCanExecuteChanged();
     }
 
     private static int Count(ElementNode node) => 1 + node.Children.Sum(Count);
