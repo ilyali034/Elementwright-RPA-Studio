@@ -58,6 +58,39 @@ public partial class MainViewModel : ObservableObject
     [ObservableProperty]
     private string selectorTestResult = "Select an element and validate its selector.";
 
+    [ObservableProperty]
+    private string activeSection = "Inspector";
+
+    public bool IsInspectorActive => ActiveSection == "Inspector";
+    public bool IsWorkflowDesignerActive => ActiveSection == "Workflow Designer";
+    public bool IsRunnerActive => ActiveSection == "Runner";
+    public bool IsExtensionsActive => ActiveSection == "Extensions";
+    public bool IsSettingsActive => ActiveSection == "Settings";
+
+    partial void OnActiveSectionChanged(string value)
+    {
+        OnPropertyChanged(nameof(IsInspectorActive));
+        OnPropertyChanged(nameof(IsWorkflowDesignerActive));
+        OnPropertyChanged(nameof(IsRunnerActive));
+        OnPropertyChanged(nameof(IsExtensionsActive));
+        OnPropertyChanged(nameof(IsSettingsActive));
+    }
+
+    [RelayCommand]
+    private void NavigateToInspector() => ActiveSection = "Inspector";
+
+    [RelayCommand]
+    private void NavigateToWorkflowDesigner() => ActiveSection = "Workflow Designer";
+
+    [RelayCommand]
+    private void NavigateToRunner() => ActiveSection = "Runner";
+
+    [RelayCommand]
+    private void NavigateToExtensions() => ActiveSection = "Extensions";
+
+    [RelayCommand]
+    private void NavigateToSettings() => ActiveSection = "Settings";
+
     public IEnumerable<ApplicationInfo> FilteredApplications =>
         string.IsNullOrWhiteSpace(SearchText)
             ? Applications
