@@ -12,6 +12,7 @@
         Background="#0F141C"
         Foreground="#E6EDF7"
         WindowStartupLocation="CenterScreen"
+        WindowState="Maximized"
         ResizeMode="CanResize">
 
     <Grid Background="#0F141C">
