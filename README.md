@@ -1,7 +1,7 @@
 # Elementwright-RPA-Studio
 
 Desktop studio (WPF, .NET 10) for building and running automations on top of
-[Elementwright-RPA-Framework](https://github.com/OWNER/Elementwright-RPA-Framework).
+[Elementwright-RPA-Framework](https://github.com/ilyali034/Elementwright-RPA-Framework).
 
 ## Framework dependency
 
