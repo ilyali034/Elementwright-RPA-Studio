@@ -295,8 +295,10 @@ public partial class MainViewModel : ObservableObject
         {
             IsLoading = true;
             var element = await ResolveSelectedElementAsync();
-            await Task.Run(() => _elementActions.Invoke(element));
-            StatusMessage = "Invoke action completed";
+            var completed = await _elementActions.InvokeAsync(element);
+            StatusMessage = completed
+                ? "Invoke action completed"
+                : "Invoke sent · the target is still busy (a dialog may be open)";
         }
         catch (Exception ex)
         {
