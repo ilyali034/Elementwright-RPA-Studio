@@ -12,6 +12,8 @@ public partial class MainViewModel : ObservableObject
 {
     private readonly IApplicationDiscovery _applicationDiscovery;
     private readonly UiaTreeReader _treeReader;
+    private readonly UiaElementFinder _elementFinder;
+    private readonly UiaElementActions _elementActions;
 
     [ObservableProperty]
     private ObservableCollection<ApplicationInfo> applications = [];
@@ -32,8 +34,6 @@ public partial class MainViewModel : ObservableObject
     [ObservableProperty]
     private int discoveredCount;
 
-    // --- Inspector state ---
-
     [ObservableProperty]
     private bool isInspecting;
 
@@ -45,7 +45,16 @@ public partial class MainViewModel : ObservableObject
 
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(CopySelectorCommand))]
+    [NotifyCanExecuteChangedFor(nameof(TestSelectorCommand))]
+    [NotifyCanExecuteChangedFor(nameof(InvokeSelectedElementCommand))]
+    [NotifyCanExecuteChangedFor(nameof(SetSelectedElementValueCommand))]
     private ElementNode? selectedElement;
+
+    [ObservableProperty]
+    private string valueInput = string.Empty;
+
+    [ObservableProperty]
+    private string selectorTestResult = "Select an element and validate its selector.";
 
     public IEnumerable<ApplicationInfo> FilteredApplications =>
         string.IsNullOrWhiteSpace(SearchText)
@@ -54,14 +63,26 @@ public partial class MainViewModel : ObservableObject
                 x.WindowTitle.Contains(SearchText, StringComparison.CurrentCultureIgnoreCase) ||
                 x.ProcessName.Contains(SearchText, StringComparison.CurrentCultureIgnoreCase));
 
-    public MainViewModel(IApplicationDiscovery applicationDiscovery, UiaTreeReader treeReader)
+    public MainViewModel(
+        IApplicationDiscovery applicationDiscovery,
+        UiaTreeReader treeReader,
+        UiaElementFinder? elementFinder = null,
+        UiaElementActions? elementActions = null)
     {
         _applicationDiscovery = applicationDiscovery;
         _treeReader = treeReader;
+        _elementFinder = elementFinder ?? new UiaElementFinder();
+        _elementActions = elementActions ?? new UiaElementActions();
     }
 
     partial void OnSearchTextChanged(string value) =>
         OnPropertyChanged(nameof(FilteredApplications));
+
+    partial void OnSelectedElementChanged(ElementNode? value)
+    {
+        ValueInput = value?.Value ?? string.Empty;
+        SelectorTestResult = "Selector not validated yet.";
+    }
 
     [RelayCommand]
     private async Task RefreshApplicationsAsync()
@@ -73,13 +94,11 @@ public partial class MainViewModel : ObservableObject
         {
             IsLoading = true;
             StatusMessage = "Scanning desktop applications...";
-
             var result = await _applicationDiscovery.GetApplicationsAsync();
 
             Applications = new ObservableCollection<ApplicationInfo>(result);
             DiscoveredCount = result.Count;
             OnPropertyChanged(nameof(FilteredApplications));
-
             StatusMessage = $"Discovery complete · {DiscoveredCount} windows found";
         }
         catch (Exception ex)
@@ -98,26 +117,50 @@ public partial class MainViewModel : ObservableObject
     private async Task ConnectToApplicationAsync()
     {
         var target = SelectedApplication;
-        if (target is null)
+        if (target is null || IsLoading)
             return;
 
         try
         {
             IsLoading = true;
             StatusMessage = $"Reading UI tree of '{target.WindowTitle}'...";
-
             var root = await _treeReader.ReadAsync(target.MainWindowHandle);
 
             ConnectedApplication = target;
             RootElements = [root];
             SelectedElement = root;
             IsInspecting = true;
-
-            StatusMessage = $"Connected: {target.WindowTitle} (PID {target.ProcessId}) · {Count(root)} elements";
+            StatusMessage = $"Connected: {target.WindowTitle} · {Count(root)} elements loaded";
         }
         catch (Exception ex)
         {
             StatusMessage = $"Connect failed: {ex.Message}";
+        }
+        finally
+        {
+            IsLoading = false;
+        }
+    }
+
+    [RelayCommand]
+    private async Task RefreshTreeAsync()
+    {
+        var target = ConnectedApplication;
+        if (target is null || IsLoading)
+            return;
+
+        try
+        {
+            IsLoading = true;
+            StatusMessage = "Refreshing UI Automation tree...";
+            var root = await _treeReader.ReadAsync(target.MainWindowHandle);
+            RootElements = [root];
+            SelectedElement = root;
+            StatusMessage = $"Tree refreshed · {Count(root)} elements";
+        }
+        catch (Exception ex)
+        {
+            StatusMessage = $"Tree refresh failed: {ex.Message}";
         }
         finally
         {
@@ -132,6 +175,7 @@ public partial class MainViewModel : ObservableObject
         RootElements = [];
         SelectedElement = null;
         ConnectedApplication = null;
+        SelectorTestResult = "Select an element and validate its selector.";
         StatusMessage = "Ready";
     }
 
@@ -154,8 +198,102 @@ public partial class MainViewModel : ObservableObject
         }
     }
 
-    partial void OnIsLoadingChanged(bool value) =>
+    private bool CanTestSelector() => SelectedElement is not null && ConnectedApplication is not null && !IsLoading;
+
+    [RelayCommand(CanExecute = nameof(CanTestSelector))]
+    private async Task TestSelectorAsync()
+    {
+        if (SelectedElement is null || ConnectedApplication is null || IsLoading)
+            return;
+
+        try
+        {
+            IsLoading = true;
+            var selector = ElementSelector.FromNode(SelectedElement);
+            var found = await _elementFinder.FindFirstAsync(ConnectedApplication.MainWindowHandle, selector);
+            SelectorTestResult = found is null
+                ? "NOT FOUND · No matching element was found."
+                : "FOUND · The selector resolves to an element.";
+            StatusMessage = found is null ? "Selector validation failed" : "Selector validation passed";
+        }
+        catch (Exception ex)
+        {
+            SelectorTestResult = $"ERROR · {ex.Message}";
+            StatusMessage = "Selector validation failed";
+        }
+        finally
+        {
+            IsLoading = false;
+        }
+    }
+
+    private bool CanInvokeSelectedElement() =>
+        SelectedElement is { IsEnabled: true, HasInvokePattern: true } &&
+        ConnectedApplication is not null && !IsLoading;
+
+    [RelayCommand(CanExecute = nameof(CanInvokeSelectedElement))]
+    private async Task InvokeSelectedElementAsync()
+    {
+        if (SelectedElement is null || ConnectedApplication is null || IsLoading)
+            return;
+
+        try
+        {
+            IsLoading = true;
+            var element = await _elementFinder.FindFirstAsync(
+                ConnectedApplication.MainWindowHandle, ElementSelector.FromNode(SelectedElement));
+            if (element is null)
+                throw new InvalidOperationException("The element could not be found again. Refresh the tree.");
+            await Task.Run(() => _elementActions.Invoke(element));
+            StatusMessage = "Invoke action completed";
+        }
+        catch (Exception ex)
+        {
+            StatusMessage = $"Invoke failed: {ex.Message}";
+        }
+        finally
+        {
+            IsLoading = false;
+        }
+    }
+
+    private bool CanSetSelectedElementValue() =>
+        SelectedElement is { IsEnabled: true, HasValuePattern: true } &&
+        ConnectedApplication is not null && !IsLoading;
+
+    [RelayCommand(CanExecute = nameof(CanSetSelectedElementValue))]
+    private async Task SetSelectedElementValueAsync()
+    {
+        if (SelectedElement is null || ConnectedApplication is null || IsLoading)
+            return;
+
+        try
+        {
+            IsLoading = true;
+            var element = await _elementFinder.FindFirstAsync(
+                ConnectedApplication.MainWindowHandle, ElementSelector.FromNode(SelectedElement));
+            if (element is null)
+                throw new InvalidOperationException("The element could not be found again. Refresh the tree.");
+            await Task.Run(() => _elementActions.SetValue(element, ValueInput));
+            StatusMessage = "Value updated";
+        }
+        catch (Exception ex)
+        {
+            StatusMessage = $"Set value failed: {ex.Message}";
+        }
+        finally
+        {
+            IsLoading = false;
+        }
+    }
+
+    partial void OnIsLoadingChanged(bool value)
+    {
         ConnectToApplicationCommand.NotifyCanExecuteChanged();
+        TestSelectorCommand.NotifyCanExecuteChanged();
+        InvokeSelectedElementCommand.NotifyCanExecuteChanged();
+        SetSelectedElementValueCommand.NotifyCanExecuteChanged();
+    }
 
     private static int Count(ElementNode node) => 1 + node.Children.Sum(Count);
 }
