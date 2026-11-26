@@ -5,13 +5,16 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
         Title="Elementwright Studio"
-        Width="1440"
-        Height="900"
-        MinWidth="1120"
-        MinHeight="720"
-        WindowStartupLocation="CenterScreen">
+        Width="1240"
+        Height="800"
+        MinWidth="960"
+        MinHeight="640"
+        Background="#0F141C"
+        Foreground="#E6EDF7"
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="CanResize">
 
-    <Grid>
+    <Grid Background="#0F141C">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="224" />
             <ColumnDefinition Width="*" />
@@ -23,20 +26,20 @@
 
         <!-- Navigation -->
         <Border Grid.RowSpan="2"
-                Background="#141922"
+                Background="#111821"
                 BorderBrush="{StaticResource BorderBrush}"
                 BorderThickness="0,0,1,0">
-            <DockPanel>
-                <StackPanel DockPanel.Dock="Top" Margin="20,22,20,24">
+            <DockPanel LastChildFill="True">
+                <StackPanel DockPanel.Dock="Top" Margin="18,18,18,22">
                     <StackPanel Orientation="Horizontal">
-                        <Border Width="31" Height="31" CornerRadius="9"
+                        <Border Width="34" Height="34" CornerRadius="9"
                                 Background="#2C5D9B" VerticalAlignment="Center">
-                            <TextBlock Text="E" FontSize="19" FontWeight="Bold"
+                            <TextBlock Text="E" FontSize="20" FontWeight="Bold"
                                        Foreground="White" HorizontalAlignment="Center"
                                        VerticalAlignment="Center" />
                         </Border>
                         <StackPanel Margin="10,0,0,0" VerticalAlignment="Center">
-                            <TextBlock Text="ELEMENTWRIGHT" FontSize="13"
+                            <TextBlock Text="ELEMENTWRIGHT" FontSize="12"
                                        FontWeight="Bold" />
                             <TextBlock Text="AUTOMATION STUDIO" FontSize="8"
                                        Foreground="{StaticResource MutedBrush}"
@@ -45,79 +48,77 @@
                     </StackPanel>
                 </StackPanel>
 
-                <StackPanel Margin="12,0">
-                    <TextBlock Text="WORKSPACE" Foreground="{StaticResource MutedBrush}"
-                               FontSize="9" FontWeight="Bold" Margin="10,0,0,10" />
-                    <Border Background="#24354C" CornerRadius="7" Padding="10,9">
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="◈" Foreground="{StaticResource AccentBrush}"
-                                       FontSize="15" Width="25" />
-                            <TextBlock Text="Inspector" FontSize="12" FontWeight="SemiBold" />
-                            <TextBlock Text="ACTIVE" FontSize="8" Foreground="#8DBBFF"
-                                       Margin="10,0,0,0" VerticalAlignment="Center" />
-                        </StackPanel>
-                    </Border>
-                    <Border Padding="10,10">
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="◇" Foreground="{StaticResource MutedBrush}"
-                                       FontSize="15" Width="25" />
-                            <TextBlock Text="Workflow Designer" Foreground="{StaticResource MutedBrush}"
-                                       FontSize="12" />
-                        </StackPanel>
-                    </Border>
-                    <Border Padding="10,10">
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="▷" Foreground="{StaticResource MutedBrush}"
-                                       FontSize="15" Width="25" />
-                            <TextBlock Text="Runner" Foreground="{StaticResource MutedBrush}"
-                                       FontSize="12" />
-                        </StackPanel>
-                    </Border>
-
-                    <TextBlock Text="DEVELOPMENT" Foreground="{StaticResource MutedBrush}"
-                               FontSize="9" FontWeight="Bold" Margin="10,28,0,10" />
-                    <Border Padding="10,10">
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="⌘" Foreground="{StaticResource MutedBrush}"
-                                       FontSize="15" Width="25" />
-                            <TextBlock Text="Extensions" Foreground="{StaticResource MutedBrush}"
-                                       FontSize="12" />
-                        </StackPanel>
-                    </Border>
-                    <Border Padding="10,10">
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="⚙" Foreground="{StaticResource MutedBrush}"
-                                       FontSize="15" Width="25" />
-                            <TextBlock Text="Settings" Foreground="{StaticResource MutedBrush}"
-                                       FontSize="12" />
-                        </StackPanel>
-                    </Border>
-                </StackPanel>
-
-                <Border DockPanel.Dock="Bottom" Margin="12" Padding="11"
-                        Background="{StaticResource SurfaceBrush}"
+                <Border DockPanel.Dock="Bottom" Margin="12"
+                        Padding="11" Background="{StaticResource SurfaceBrush}"
                         BorderBrush="{StaticResource BorderBrush}"
                         BorderThickness="1" CornerRadius="8">
                     <StackPanel>
                         <TextBlock Text="PROJECT STATUS" FontSize="9"
                                    Foreground="{StaticResource MutedBrush}"
                                    FontWeight="Bold" />
-                        <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+                        <StackPanel Orientation="Horizontal" Margin="0,9,0,0">
                             <Ellipse Width="7" Height="7" Fill="{StaticResource SuccessBrush}"
                                      VerticalAlignment="Center" />
-                            <TextBlock Text="Local environment" FontSize="10"
-                                       Margin="7,0,0,0" />
+                            <TextBlock Text="Local environment" FontSize="10" Margin="7,0,0,0" />
                         </StackPanel>
-                        <TextBlock Text="Elementwright · v0.1.0"
-                                   FontSize="9" Foreground="{StaticResource MutedBrush}"
-                                   Margin="0,8,0,0" />
+                        <TextBlock Text="Elementwright · v0.1.0" FontSize="9"
+                                   Foreground="{StaticResource MutedBrush}" Margin="0,7,0,0" />
                     </StackPanel>
                 </Border>
+
+                <ScrollViewer VerticalScrollBarVisibility="Auto"
+                              HorizontalScrollBarVisibility="Disabled">
+                    <StackPanel Margin="12,0">
+                        <TextBlock Text="WORKSPACE" Foreground="{StaticResource MutedBrush}"
+                                   FontSize="9" FontWeight="Bold" Margin="10,0,0,9" />
+                        <ToggleButton Content="◈    Inspector"
+                                      Style="{StaticResource NavigationToggleButton}"
+                                      IsChecked="{Binding IsInspectorActive, Mode=OneWay}"
+                                      Command="{Binding NavigateToInspectorCommand}" />
+                        <ToggleButton Content="◇    Workflow Designer"
+                                      Style="{StaticResource NavigationToggleButton}"
+                                      IsChecked="{Binding IsWorkflowDesignerActive, Mode=OneWay}"
+                                      Command="{Binding NavigateToWorkflowDesignerCommand}" />
+                        <ToggleButton Content="▷    Runner"
+                                      Style="{StaticResource NavigationToggleButton}"
+                                      IsChecked="{Binding IsRunnerActive, Mode=OneWay}"
+                                      Command="{Binding NavigateToRunnerCommand}" />
+
+                        <TextBlock Text="DEVELOPMENT" Foreground="{StaticResource MutedBrush}"
+                                   FontSize="9" FontWeight="Bold" Margin="10,24,0,9" />
+                        <ToggleButton Content="⌘    Extensions"
+                                      Style="{StaticResource NavigationToggleButton}"
+                                      IsChecked="{Binding IsExtensionsActive, Mode=OneWay}"
+                                      Command="{Binding NavigateToExtensionsCommand}" />
+                        <ToggleButton Content="⚙    Settings"
+                                      Style="{StaticResource NavigationToggleButton}"
+                                      IsChecked="{Binding IsSettingsActive, Mode=OneWay}"
+                                      Command="{Binding NavigateToSettingsCommand}" />
+                    </StackPanel>
+                </ScrollViewer>
             </DockPanel>
         </Border>
 
         <!-- Main content -->
         <Grid Grid.Column="1" Grid.Row="0">
+            <Grid.Style>
+                <Style TargetType="Grid">
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding ActiveSection}" Value="Workflow Designer">
+                            <Setter Property="Visibility" Value="Collapsed" />
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding ActiveSection}" Value="Runner">
+                            <Setter Property="Visibility" Value="Collapsed" />
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding ActiveSection}" Value="Extensions">
+                            <Setter Property="Visibility" Value="Collapsed" />
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding ActiveSection}" Value="Settings">
+                            <Setter Property="Visibility" Value="Collapsed" />
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Grid.Style>
             <Grid.RowDefinitions>
                 <RowDefinition Height="66" />
                 <RowDefinition Height="*" />
@@ -503,6 +504,62 @@
                         </ScrollViewer>
                     </Border>
                 </Grid>
+            </Grid>
+        </Grid>
+
+        <!-- Workspace placeholder pages -->
+        <Grid Grid.Column="1" Grid.Row="0" Background="#0F141C">
+            <Grid.Style>
+                <Style TargetType="Grid">
+                    <Setter Property="Visibility" Value="Collapsed" />
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding ActiveSection}" Value="Workflow Designer">
+                            <Setter Property="Visibility" Value="Visible" />
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding ActiveSection}" Value="Runner">
+                            <Setter Property="Visibility" Value="Visible" />
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding ActiveSection}" Value="Extensions">
+                            <Setter Property="Visibility" Value="Visible" />
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding ActiveSection}" Value="Settings">
+                            <Setter Property="Visibility" Value="Visible" />
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Grid.Style>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="66" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <Border BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1">
+                <StackPanel Margin="25,0" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding ActiveSection}" FontSize="17" FontWeight="SemiBold" />
+                    <TextBlock Text="Elementwright automation workspace"
+                               FontSize="10" Foreground="{StaticResource MutedBrush}"
+                               Margin="0,4,0,0" />
+                </StackPanel>
+            </Border>
+            <Grid Grid.Row="1" Margin="24">
+                <Border Background="{StaticResource SurfaceBrush}"
+                        BorderBrush="{StaticResource BorderBrush}"
+                        BorderThickness="1" CornerRadius="12"
+                        Padding="28" MaxWidth="720" MaxHeight="260"
+                        HorizontalAlignment="Left" VerticalAlignment="Top">
+                    <StackPanel>
+                        <TextBlock Text="{Binding ActiveSection}" FontSize="20"
+                                   FontWeight="SemiBold" />
+                        <TextBlock Text="This workspace is not implemented yet."
+                                   FontSize="13" Margin="0,12,0,6" />
+                        <TextBlock Text="Navigation is active. The Inspector is the only workspace currently connected to the automation framework. Workflow Designer, Runner, Extensions and Settings will be added as functional modules rather than decorative screens."
+                                   FontSize="11" Foreground="{StaticResource MutedBrush}"
+                                   TextWrapping="Wrap" MaxWidth="620" />
+                        <Button Content="Open Inspector"
+                                Command="{Binding NavigateToInspectorCommand}"
+                                Style="{StaticResource PrimaryButton}"
+                                HorizontalAlignment="Left" Margin="0,20,0,0" />
+                    </StackPanel>
+                </Border>
             </Grid>
         </Grid>
 
