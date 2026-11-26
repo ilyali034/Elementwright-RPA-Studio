@@ -225,8 +225,8 @@ public partial class MainViewModel : ObservableObject
 
         try
         {
-            Clipboard.SetText(SelectedElement.Selector);
-            StatusMessage = "Selector copied to clipboard";
+            Clipboard.SetText(ElementSelector.FromNode(SelectedElement).ToJson());
+            StatusMessage = "Selector (JSON) copied to clipboard";
         }
         catch (Exception ex)
         {

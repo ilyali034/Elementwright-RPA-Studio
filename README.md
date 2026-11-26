@@ -34,7 +34,7 @@ dotnet run --project .\src\Elementwright.Studio\Elementwright.Studio.csproj
 4. Inspect its metadata, bounds, current value and supported UI Automation patterns.
 5. Use **Refresh tree** after the target application's UI changes.
 6. Use **Test selector** to verify that the selected element can be resolved again.
-7. Use **Copy selector** to copy its readable selector.
+7. Use **Copy selector** to copy the selector as JSON (parse it with `ElementSelector.Parse`).
 8. Use the available actions when their buttons are enabled:
    - **Invoke element** — UIA Invoke pattern (commonly buttons and menu items).
    - **Set value** — UIA Value pattern (commonly editable fields).
