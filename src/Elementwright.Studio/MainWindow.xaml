@@ -334,9 +334,17 @@
                             <Run Text="{Binding ConnectedApplication.ProcessId, Mode=OneWay}" />
                         </TextBlock>
                     </StackPanel>
-                    <Button Grid.Column="2" Content="Copy selector"
-                            Command="{Binding CopySelectorCommand}"
-                            Style="{StaticResource PrimaryButton}" />
+                    <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                        <Button Content="Refresh tree"
+                                Command="{Binding RefreshTreeCommand}"
+                                Margin="0,0,8,0" />
+                        <Button Content="Test selector"
+                                Command="{Binding TestSelectorCommand}"
+                                Margin="0,0,8,0" />
+                        <Button Content="Copy selector"
+                                Command="{Binding CopySelectorCommand}"
+                                Style="{StaticResource PrimaryButton}" />
+                    </StackPanel>
                 </Grid>
 
                 <Grid Grid.Row="1">
@@ -357,9 +365,14 @@
                             </Grid.RowDefinitions>
                             <Border BorderBrush="{StaticResource BorderBrush}"
                                     BorderThickness="0,0,0,1" Padding="15,0">
-                                <TextBlock Text="UI ELEMENT TREE" FontSize="9" FontWeight="Bold"
-                                           Foreground="{StaticResource MutedBrush}"
-                                           VerticalAlignment="Center" />
+                                <Grid>
+                                    <TextBlock Text="UI ELEMENT TREE" FontSize="9" FontWeight="Bold"
+                                               Foreground="{StaticResource MutedBrush}"
+                                               VerticalAlignment="Center" />
+                                    <TextBlock Text="CONTROL VIEW · LIVE SNAPSHOT" FontSize="8"
+                                               Foreground="{StaticResource MutedBrush}"
+                                               HorizontalAlignment="Right" VerticalAlignment="Center" />
+                                </Grid>
                             </Border>
                             <TreeView Grid.Row="1"
                                       ItemsSource="{Binding RootElements}"
@@ -418,7 +431,30 @@
 
                                 <TextBlock Text="ENABLED" FontSize="9" Foreground="{StaticResource MutedBrush}" />
                                 <TextBlock Text="{Binding SelectedElement.IsEnabled, TargetNullValue=—}"
-                                           FontSize="12" Margin="0,5,0,13" />
+                                           FontSize="12" Margin="0,5,0,10" />
+                                <TextBlock Text="OFFSCREEN" FontSize="9" Foreground="{StaticResource MutedBrush}" />
+                                <TextBlock Text="{Binding SelectedElement.IsOffscreen, TargetNullValue=—}"
+                                           FontSize="12" Margin="0,5,0,10" />
+                                <TextBlock Text="KEYBOARD FOCUSABLE" FontSize="9" Foreground="{StaticResource MutedBrush}" />
+                                <TextBlock Text="{Binding SelectedElement.IsKeyboardFocusable, TargetNullValue=—}"
+                                           FontSize="12" Margin="0,5,0,10" />
+                                <TextBlock Text="SUPPORTED PATTERNS" FontSize="9" Foreground="{StaticResource MutedBrush}" />
+                                <TextBlock FontSize="11" TextWrapping="Wrap" Margin="0,5,0,12">
+                                    <Run Text="Invoke: " />
+                                    <Run Text="{Binding SelectedElement.HasInvokePattern}" />
+                                    <Run Text="  ·  Value: " />
+                                    <Run Text="{Binding SelectedElement.HasValuePattern}" />
+                                    <Run Text="  ·  Toggle: " />
+                                    <Run Text="{Binding SelectedElement.HasTogglePattern}" />
+                                    <Run Text="  ·  Select: " />
+                                    <Run Text="{Binding SelectedElement.HasSelectionItemPattern}" />
+                                </TextBlock>
+                                <TextBlock Text="HELP TEXT" FontSize="9" Foreground="{StaticResource MutedBrush}" />
+                                <TextBlock Text="{Binding SelectedElement.HelpText, TargetNullValue=—}"
+                                           FontSize="11" TextWrapping="Wrap" Margin="0,5,0,12" />
+                                <TextBlock Text="CURRENT VALUE" FontSize="9" Foreground="{StaticResource MutedBrush}" />
+                                <TextBlock Text="{Binding SelectedElement.Value, TargetNullValue=—}"
+                                           FontSize="11" TextWrapping="Wrap" Margin="0,5,0,12" />
 
                                 <TextBlock Text="BOUNDS" FontSize="9" Foreground="{StaticResource MutedBrush}" />
                                 <TextBlock FontSize="12" Margin="0,5,0,13">
@@ -437,6 +473,21 @@
                                                FontFamily="Consolas" FontSize="10.5"
                                                TextWrapping="Wrap" Foreground="#9CB5D5" />
                                 </Border>
+                                <TextBlock Text="{Binding SelectorTestResult}" FontSize="10"
+                                           TextWrapping="Wrap" Margin="0,10,0,14"
+                                           Foreground="{StaticResource MutedBrush}" />
+                                <TextBlock Text="SET VALUE" FontSize="9"
+                                           Foreground="{StaticResource MutedBrush}" />
+                                <TextBox Text="{Binding ValueInput, UpdateSourceTrigger=PropertyChanged}"
+                                         MinHeight="34" Margin="0,6,0,8"
+                                         VerticalContentAlignment="Center" />
+                                <Button Content="Set value"
+                                        Command="{Binding SetSelectedElementValueCommand}"
+                                        HorizontalAlignment="Stretch" Margin="0,0,0,8" />
+                                <Button Content="Invoke element"
+                                        Command="{Binding InvokeSelectedElementCommand}"
+                                        Style="{StaticResource PrimaryButton}"
+                                        HorizontalAlignment="Stretch" />
                             </StackPanel>
                         </ScrollViewer>
                     </Border>
